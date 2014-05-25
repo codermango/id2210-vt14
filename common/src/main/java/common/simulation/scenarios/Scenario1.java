@@ -8,7 +8,7 @@ public class Scenario1 extends Scenario {
                 
 		StochasticProcess process0 = new StochasticProcess() {{
 			eventInterArrivalTime(constant(1000));
-			raise(100, Operations.peerJoin(), 
+			raise(5, Operations.peerJoin(), 
                                 uniform(0, Integer.MAX_VALUE), 
                                 constant(8), constant(12000)
                              );
@@ -16,9 +16,9 @@ public class Scenario1 extends Scenario {
                 
 		StochasticProcess process1 = new StochasticProcess() {{
 			eventInterArrivalTime(constant(100));
-			raise(200, Operations.requestResources(), 
+			raise(50, Operations.requestResources(), 
                                 uniform(0, Integer.MAX_VALUE),
-                                constant(2), constant(2000),
+                                constant(5), constant(5000),
                                 constant(1000*60*1) // 1 minute
                                 );
 		}};
@@ -36,7 +36,9 @@ public class Scenario1 extends Scenario {
 		}};
 		process0.start();
 		process1.startAfterTerminationOf(2000, process0);
+                System.out.println("------------Start----------------");
                 terminateProcess.startAfterTerminationOf(100*1000, process1);
+                System.out.println("------------End------------------");
 	}};
 
 	// -------------------------------------------------------------------

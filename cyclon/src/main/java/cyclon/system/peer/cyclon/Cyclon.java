@@ -102,7 +102,7 @@ public final class Cyclon extends ComponentDefinition {
 	private void initiateShuffle(int shuffleSize, Address randomPeer) {
 		// send the random view to a random peer
 		ArrayList<PeerDescriptor> randomDescriptors = cache.selectToSendAtActive(shuffleSize - 1, randomPeer);
-		randomDescriptors.add(new PeerDescriptor(self));
+		randomDescriptors.add(new PeerDescriptor(self, availableResources));
 		DescriptorBuffer randomBuffer = new DescriptorBuffer(self, randomDescriptors);
 		
 		ScheduleTimeout rst = new ScheduleTimeout(shuffleTimeout);
@@ -191,12 +191,13 @@ public final class Cyclon extends ComponentDefinition {
 	};
 	
 
-	private ArrayList<Address> getPartners() {
+	private ArrayList<PeerDescriptor> getPartners() {
 		ArrayList<PeerDescriptor> partnersDescriptors = cache.getAll();
-		ArrayList<Address> partners = new ArrayList<Address>();
+	   /*	ArrayList<Address> partners = new ArrayList<Address>();
 		for (PeerDescriptor desc : partnersDescriptors)
 			partners.add(desc.getAddress());
 		
-		return partners;
+		return partners;*/
+                return partnersDescriptors;
 	}
 }

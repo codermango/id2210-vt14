@@ -44,7 +44,7 @@ public final class ResourceManager extends ComponentDefinition {
     Negative<Web> webPort = negative(Web.class);
     Positive<CyclonSamplePort> cyclonSamplePort = positive(CyclonSamplePort.class);
     Positive<TManSamplePort> tmanPort = positive(TManSamplePort.class);
-    ArrayList<Address> neighbours = new ArrayList<Address>(); // this is the partial view of a node
+    ArrayList<PeerDescriptor> neighbours = new ArrayList<PeerDescriptor>(); // this is the partial view of a node
     private Address self;
     private RmConfiguration configuration;
     Random random;
@@ -113,7 +113,7 @@ public final class ResourceManager extends ComponentDefinition {
             if (neighbours.isEmpty()) {
                 return;
             }
-            Address dest = neighbours.get(random.nextInt(neighbours.size()));
+            //Address dest = neighbours.get(random.nextInt(neighbours.size()));
 
         }
     };
@@ -128,7 +128,7 @@ public final class ResourceManager extends ComponentDefinition {
         @Override
         public void handle(RequestResources.Request event) {
 
-            logger.info("收到了来自" + event.getJobID() + "的资源分配请求");
+            logger.info("收到了来自" + event.getSource().getId() + "的资源分配请求");
             
             //boolean isAvailabel = (availableResources.getFreeMemInMbs() >= event.getAmountMemInMb()) && (availableResources.getNumFreeCpus() >= event.getNumCpus());
             boolean isAvailabel = availableResources.isAvailable(event.getNumCpus(), event.getAmountMemInMb());
@@ -159,8 +159,8 @@ public final class ResourceManager extends ComponentDefinition {
             if (list.size() == NUM_PROBES) {
                 RequestResources.Response minLoadResponse = Collections.min(list); // ?
                 Address selectedPeer = minLoadResponse.getSource();
-                RequestResources.AssignJob schJob = new RequestResources.AssignJob(self, selectedPeer, jobsFromSimulator.get(event.getJobID()));
-                trigger(schJob, networkPort);
+                RequestResources.AssignJob assignJob = new RequestResources.AssignJob(self, selectedPeer, jobsFromSimulator.get(event.getJobID()));
+                trigger(assignJob, networkPort);
                 jobsFromSimulator.remove(event.getJobID());
             }
         }
@@ -199,13 +199,13 @@ public final class ResourceManager extends ComponentDefinition {
             //System.out.println("Allocate resources: " + event.getNumCpus() + " + " + event.getMemoryInMbs());
             // TODO: Ask for resources from neighbours
             // by sending a ResourceRequest
-            List<Address> tempNeighbours = new ArrayList<Address>();
+            List<PeerDescriptor> tempNeighbours = new ArrayList<PeerDescriptor>();
             tempNeighbours.addAll(neighbours);
             jobsFromSimulator.put(event.getId(), event); // Store the job in the map.
             int times = Math.min(NUM_PROBES, neighbours.size());
             for (int i = 0; i < times; i++) {
                 int index = (int) Math.round(Math.random() * (tempNeighbours.size() - 1));
-                RequestResources.Request req = new RequestResources.Request(self, tempNeighbours.get(index), event.getId(), event.getNumCpus(), event.getMemoryInMbs());
+                RequestResources.Request req = new RequestResources.Request(self, tempNeighbours.get(index).getAddress(), event.getId(), event.getNumCpus(), event.getMemoryInMbs());
                 tempNeighbours.remove(index);
                 trigger(req, networkPort);
             }
@@ -222,7 +222,9 @@ public final class ResourceManager extends ComponentDefinition {
         @Override
         public void handle(RequestResources.AssignJob event) {
             RequestResource job = event.getJob();
-            if (availableResources.isAvailable(job.getNumCpus(), job.getMemoryInMbs())) {
+            if(queuedJobs.size() > 0) {
+                queuedJobs.add(job);
+            } else if (availableResources.isAvailable(job.getNumCpus(), job.getMemoryInMbs())) {
                 availableResources.allocate(job.getNumCpus(), job.getMemoryInMbs());
             } else {
                 queuedJobs.add(job);

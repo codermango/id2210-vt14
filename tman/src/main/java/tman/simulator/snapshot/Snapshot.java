@@ -1,12 +1,13 @@
 package tman.simulator.snapshot;
 
+import cyclon.system.peer.cyclon.PeerDescriptor;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import se.sics.kompics.address.Address;
 
 
 public class Snapshot {
-	private static TreeMap<Address, PeerInfo> peers = new TreeMap<Address, PeerInfo>();
+	private static TreeMap<PeerDescriptor, PeerInfo> peers = new TreeMap<PeerDescriptor, PeerInfo>();
 	private static int counter = 0;
 	private static String FILENAME = "tman.out";
 
@@ -16,7 +17,7 @@ public class Snapshot {
 	}
 
 
-	public static void addPeer(Address address) {
+	public static void addPeer(PeerDescriptor address) {
 		peers.put(address, new PeerInfo());
 	}
 
@@ -26,7 +27,7 @@ public class Snapshot {
 	}
 
 
-	public static void updateTManPartners(Address address, ArrayList<Address> partners) {
+	public static void updateTManPartners(PeerDescriptor address, ArrayList<PeerDescriptor> partners) {
 		PeerInfo peerInfo = peers.get(address);
 		
 		if (peerInfo == null)
@@ -74,7 +75,7 @@ public class Snapshot {
 		PeerInfo peerInfo;
 		String str = new String("---\n");
 
-		for (Address peer : peers.keySet()) {
+		for (PeerDescriptor peer : peers.keySet()) {
 			peerInfo = peers.get(peer);
 		
 			str += "peer: " + peer;

@@ -8,10 +8,10 @@ import se.sics.kompics.address.Address;
 
 
 public class CyclonSample extends Event {
-	ArrayList<Address> nodes = new ArrayList<Address>();
+	ArrayList<PeerDescriptor> nodes = new ArrayList<PeerDescriptor>();
 
 
-	public CyclonSample(ArrayList<Address> nodes) {
+	public CyclonSample(ArrayList<PeerDescriptor> nodes) {
 		this.nodes = nodes;
 	}
         
@@ -19,7 +19,7 @@ public class CyclonSample extends Event {
 	}
 
 
-	public ArrayList<Address> getSample() {
+	public ArrayList<PeerDescriptor> getSample() {
 		return this.nodes;
 	}
 }

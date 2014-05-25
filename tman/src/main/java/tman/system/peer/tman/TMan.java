@@ -6,7 +6,9 @@ import java.util.ArrayList;
 
 import cyclon.system.peer.cyclon.CyclonSample;
 import cyclon.system.peer.cyclon.CyclonSamplePort;
+import cyclon.system.peer.cyclon.PeerDescriptor;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import org.slf4j.Logger;
@@ -35,10 +37,14 @@ public final class TMan extends ComponentDefinition {
     Positive<Timer> timerPort = positive(Timer.class);
     private long period;
     private Address self;
-    private ArrayList<Address> tmanPartners;
+    private ArrayList<PeerDescriptor> tmanPartners;
     private TManConfiguration tmanConfiguration;
     private Random r;
     private AvailableResources availableResources;
+    
+    private ArrayList<PeerDescriptor> gradientCPU;
+    private ArrayList<PeerDescriptor> gradientMem;
+    private ArrayList<PeerDescriptor> gradientAvR;
 
     public class TManSchedule extends Timeout {
 
@@ -52,7 +58,7 @@ public final class TMan extends ComponentDefinition {
     }
 
     public TMan() {
-        tmanPartners = new ArrayList<Address>();
+        tmanPartners = new ArrayList<PeerDescriptor>();
 
         subscribe(handleInit, control);
         subscribe(handleRound, timerPort);
@@ -81,7 +87,7 @@ public final class TMan extends ComponentDefinition {
     Handler<TManSchedule> handleRound = new Handler<TManSchedule>() {
         @Override
         public void handle(TManSchedule event) {
-            Snapshot.updateTManPartners(self, tmanPartners);
+            Snapshot.updateTManPartners(new PeerDescriptor(self, availableResources), tmanPartners);
 
             // Publish sample to connected components
             trigger(new TManSample(tmanPartners), tmanPort);
@@ -92,12 +98,11 @@ public final class TMan extends ComponentDefinition {
     Handler<CyclonSample> handleCyclonSample = new Handler<CyclonSample>() {
         @Override
         public void handle(CyclonSample event) {
-            List<Address> cyclonPartners = event.getSample();
+            List<PeerDescriptor> cyclonPartners = event.getSample();
 
             // merge cyclonPartners into TManPartners
-            cyclonPartners.clear();
-            merge(cyclonPartners, tmanPartners);
-            //System.out.println(tmanPartners.size()+"tman works!");
+            
+           
         }
     };
 
@@ -118,13 +123,7 @@ public final class TMan extends ComponentDefinition {
     };
 
 //-----------------------------------------------------------------------------------------------    
-    private void merge(List<Address> source, List<Address> target) {
-        for(Address peerAddress: source) {
-            if(!target.contains(peerAddress)) {
-                target.add(peerAddress);
-            }
-        }
-    }
+
     
     
 //--------------------------------------------------------------------------------
@@ -164,4 +163,21 @@ public final class TMan extends ComponentDefinition {
         return entries.get(entries.size() - 1);
     }
 
+    
+    
+//    private void constructGradientAndGossip(ArrayList<PeerDescriptor> gradient, Comparator<? super PeerDescriptor> comparator){
+//    	//WHO TO GOSHIP. Randomly selected from cyclon sample.
+//    	int index = (int) Math.round(Math.random()*(tmanPartners.size()-1));
+//
+//        // We call X times the softmax method where X we define as half of the number of neighbours
+//        gradient = new ArrayList<PeerDescriptor>();
+//        for(int i=0; i< tmanPartners.size()/2; i++){
+//        	gradient.add(getSoftMaxAddress(tmanPartners, comparator));
+//        }
+//        TManAddressBuffer tmanBuffer = new TManAddressBuffer(self, gradient); 
+//        
+//        //WHAT TO GOSHIP. We send a list of Descriptors of peers from calling the softmax
+//        new ExchangeMsg.Request(UUID.randomUUID(), tmanBuffer, self,tmanPartners.get(index).getAddress());
+//    }
+    
 }
