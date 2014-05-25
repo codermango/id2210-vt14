@@ -172,7 +172,7 @@ public final class ResourceManager extends ComponentDefinition {
         public void handle(CyclonSample event) {
 
             //System.out.println("处理CyclonSample的请求");
-            System.out.println("Received samples: " + event.getSample().size());
+            //System.out.println("Received samples: " + event.getSample().size());
 
             // receive a new list of neighbours
             neighbours.clear();

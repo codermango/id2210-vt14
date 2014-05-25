@@ -97,7 +97,7 @@ public final class TMan extends ComponentDefinition {
             // merge cyclonPartners into TManPartners
             cyclonPartners.clear();
             merge(cyclonPartners, tmanPartners);
-            System.out.println(tmanPartners.size()+"tman works!");
+            //System.out.println(tmanPartners.size()+"tman works!");
         }
     };
 
@@ -117,7 +117,7 @@ public final class TMan extends ComponentDefinition {
         }
     };
 
-    
+//-----------------------------------------------------------------------------------------------    
     private void merge(List<Address> source, List<Address> target) {
         for(Address peerAddress: source) {
             if(!target.contains(peerAddress)) {
