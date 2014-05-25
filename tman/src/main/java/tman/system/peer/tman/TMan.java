@@ -61,6 +61,7 @@ public final class TMan extends ComponentDefinition {
         subscribe(handleTManPartnersRequest, networkPort);
     }
 
+//--------------------------------------------------------------------------------
     Handler<TManInit> handleInit = new Handler<TManInit>() {
         @Override
         public void handle(TManInit init) {
@@ -76,6 +77,7 @@ public final class TMan extends ComponentDefinition {
         }
     };
 
+//--------------------------------------------------------------------------------
     Handler<TManSchedule> handleRound = new Handler<TManSchedule>() {
         @Override
         public void handle(TManSchedule event) {
@@ -86,29 +88,46 @@ public final class TMan extends ComponentDefinition {
         }
     };
 
+//--------------------------------------------------------------------------------
     Handler<CyclonSample> handleCyclonSample = new Handler<CyclonSample>() {
         @Override
         public void handle(CyclonSample event) {
             List<Address> cyclonPartners = event.getSample();
 
             // merge cyclonPartners into TManPartners
+            cyclonPartners.clear();
+            merge(cyclonPartners, tmanPartners);
+            System.out.println(tmanPartners.size()+"tman works!");
         }
     };
 
+//--------------------------------------------------------------------------------
     Handler<ExchangeMsg.Request> handleTManPartnersRequest = new Handler<ExchangeMsg.Request>() {
         @Override
         public void handle(ExchangeMsg.Request event) {
 
         }
     };
-
+    
+//--------------------------------------------------------------------------------
     Handler<ExchangeMsg.Response> handleTManPartnersResponse = new Handler<ExchangeMsg.Response>() {
         @Override
         public void handle(ExchangeMsg.Response event) {
-
+            
         }
     };
 
+    
+    private void merge(List<Address> source, List<Address> target) {
+        for(Address peerAddress: source) {
+            if(!target.contains(peerAddress)) {
+                target.add(peerAddress);
+            }
+        }
+    }
+    
+    
+//--------------------------------------------------------------------------------
     // TODO - if you call this method with a list of entries, it will
     // return a single node, weighted towards the 'best' node (as defined by
     // ComparatorById) with the temperature controlling the weighting.
